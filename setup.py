@@ -1,3 +1,4 @@
+import sys
 from setuptools import setup, find_packages
 
 import pygout
@@ -11,12 +12,18 @@ INSTALL_REQUIRES = [
         'Pygments == 1.5',
 ]
 
+if sys.version_info < (2, 7):
+    INSTALL_REQUIRES.append('argparse >= 1.1')
+
+if sys.version_info < (3, 0):
+    INSTALL_REQUIRES.append('configparser >= 3.0')
+
 setup(
     name = 'PygOut',
     version = pygout.__version__,
     url = 'http://github.com/alanbriolat/PygOut',
     license = 'BSD License',
-    author = 'Alan Briolat, Helen Gray',
+    author = 'Alan Briolat, Helen M. Gray',
     description = DESCRIPTION,
     long_descrption = LONG_DESCRIPTION,
     packages = find_packages(),
