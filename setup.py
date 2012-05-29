@@ -15,8 +15,8 @@ INSTALL_REQUIRES = [
 if sys.version_info < (2, 7):
     INSTALL_REQUIRES.append('argparse >= 1.1')
 
-if sys.version_info < (3, 0):
-    INSTALL_REQUIRES.append('configparser >= 3.0')
+if sys.version_info < (3, 2):
+    INSTALL_REQUIRES.append('configparser >= 3.2')
 
 setup(
     name = 'PygOut',
