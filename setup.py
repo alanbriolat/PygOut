@@ -10,6 +10,7 @@ LONG_DESCRIPTION = readme
 
 INSTALL_REQUIRES = [
         'Pygments == 1.5',
+        'straight.plugin >= 1.3',
 ]
 
 if sys.version_info < (2, 7):
