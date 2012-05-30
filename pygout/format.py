@@ -14,6 +14,16 @@ class Format(object):
         """
         return cls.__name__.lower()
 
+    def read(self, stream):
+        """Read style from *stream* according to the format.
+        """
+        raise NotImplementedError
+
+    def write(self, stream):
+        """Write style to *stream* according to the format.
+        """
+        raise NotImplementedError
+
 
 class PluginError(Exception):
     pass
