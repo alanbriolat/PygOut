@@ -1,8 +1,27 @@
-import codecs
 from configparser import ConfigParser, ExtendedInterpolation
 
 from pygments.token import string_to_tokentype
-from pygments.style import StyleMeta
+
+# Relative import because this module name shadows the package name
+from ..format import Format
+
+
+class PygOut(Format):
+    def read(self, stream):
+        config = ConfigParser(interpolation=ExtendedInterpolation(),
+                              default_section='IGNORED_DEFAULT')
+        config.read_file(stream)
+
+        token_styles = {}
+        for name, section in config.items():
+            # Ignore sections that aren't going to be allowed as token names
+            if name == 'IGNORED_DEFAULT' or name[0].islower():
+                continue
+
+            token = string_to_tokentype(name)
+            token_styles[token] = _read_style_section(section)
+
+        return token_styles
 
 
 def _option_prefix(section, option, prefix):
@@ -36,25 +55,11 @@ def _read_style_section(section):
     return ' '.join(s for s in styles if s is not None)
 
 
-def read_style(configdata):
-    config = ConfigParser(interpolation=ExtendedInterpolation(),
-                          default_section='IGNORED_DEFAULT')
-    config.read_string(configdata)
-
-    token_styles = {}
-    for name, section in config.items():
-        # Ignore sections that aren't going to be allowed as token names
-        if name == 'IGNORED_DEFAULT' or name[0].islower():
-            continue
-
-        token = string_to_tokentype(name)
-        token_styles[token] = _read_style_section(section)
-
-    return token_styles
-
-
 if __name__ == '__main__':
     import sys
-    with codecs.open(sys.argv[1], 'r', 'utf-8') as f:
-        style = read_style(f.read())
+    import codecs
+    with codecs.open(sys.argv[1], 'r', 'utf-8') as stream:
+        f = PygOut()
+        style = f.read(stream)
         print style
+
