@@ -2,11 +2,10 @@ from configparser import ConfigParser, ExtendedInterpolation
 
 from pygments.token import string_to_tokentype
 
-# Relative import because this module name shadows the package name
-from ..format import Format
+from pygout.format import Format
 
 
-class PygOut(Format):
+class PygOutConfig(Format):
     def read(self, stream):
         config = ConfigParser(interpolation=ExtendedInterpolation(),
                               default_section='IGNORED_DEFAULT')
@@ -59,7 +58,7 @@ if __name__ == '__main__':
     import sys
     import codecs
     with codecs.open(sys.argv[1], 'r', 'utf-8') as stream:
-        f = PygOut()
+        f = PygOutConfig()
         style = f.read(stream)
         print style
 
