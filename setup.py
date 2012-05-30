@@ -33,10 +33,10 @@ setup(
     entry_points = {
         'console_scripts': ['pygout = pygout.cmdline:main'],
     },
-    tests_require = [
+    setup_requires = [
+        # This makes "python setup.py nosetests" possible
         'nose >= 1.1.2',
     ],
-    test_suite = 'nose.collector',
     classifiers = [
         'Development Status :: 2 - Pre-Alpha',
         'Environment :: Console',
