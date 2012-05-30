@@ -33,6 +33,10 @@ setup(
     entry_points = {
         'console_scripts': ['pygout = pygout.cmdline:main'],
     },
+    tests_require = [
+        'nose >= 1.1.2',
+    ],
+    test_suite = 'nose.collector',
     classifiers = [
         'Development Status :: 2 - Pre-Alpha',
         'Environment :: Console',
