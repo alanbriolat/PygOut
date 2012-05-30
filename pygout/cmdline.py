@@ -3,7 +3,7 @@ import argparse
 
 import pygments.styles
 
-from pygout.application import find_apps
+from pygout.format import find_formats
 
 
 class _ListStyles(argparse.Action):
@@ -12,28 +12,28 @@ class _ListStyles(argparse.Action):
         parser.exit(0, '\n'.join(styles) + '\n')
 
 
-class _ListApps(argparse.Action):
+class _ListFormats(argparse.Action):
     def __call__(self, parser, namespace, values, option_string):
-        apps = sorted(find_apps().keys())
-        parser.exit(0, '\n'.join(apps) + '\n')
+        formats = sorted(find_formats().keys())
+        parser.exit(0, '\n'.join(formats) + '\n')
 
 
 def main(argv=sys.argv):
     parser = argparse.ArgumentParser(
-            description='Generate editor color schemes')
-    parser.add_argument('--help-styles', nargs=0, action=_ListStyles,
+            description='Generate color schemes in different formats')
+    parser.add_argument('--help-style', nargs=0, action=_ListStyles,
                         help='Show available Pygments styles and exit')
-    parser.add_argument('--help-apps', nargs=0, action=_ListApps,
+    parser.add_argument('--help-format', nargs=0, action=_ListFormats,
                         help='Show available applications and exit')
-    parser.add_argument('application', choices=find_apps(), metavar='app',
-                        help='Target application')
-    group = parser.add_mutually_exclusive_group()
+    parser.add_argument('format', metavar='format',
+                        choices=sorted(find_formats().keys()),
+                        help='Target format')
+    group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-S', dest='pygments_style', metavar='STYLE',
                        choices=sorted(pygments.styles.get_all_styles()),
                        help='Use existing Pygments style')
     group.add_argument('-f', dest='style', metavar='FILE',
                        type=argparse.FileType('r'),
-                       choices=sorted(find_apps().keys()),
                        help='Use style definition file')
     args = parser.parse_args()
     print args
