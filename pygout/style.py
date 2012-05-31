@@ -5,7 +5,7 @@ class _Color(object):
     """A clever descriptor that throws a :exc:`ValueError` if an invalid color
     is assigned.
     """
-    VALID_COLOR = re.compile(r'#(([0-9a-fA-F]{3}){1,2})')
+    VALID_COLOR = re.compile(r'^#(([0-9a-fA-F]{3}){1,2})$')
 
     def __init__(self, attr):
         self.attr = attr

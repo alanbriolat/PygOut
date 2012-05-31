@@ -1,3 +1,5 @@
+import unittest
+
 from pygout.style import TokenStyle
 
 
@@ -53,3 +55,20 @@ def test_identity():
 
     for s in styles:
         yield test_style_identity, s
+
+
+class TestColorAssignment(unittest.TestCase):
+    def test_invalid_colors(self):
+        s = TokenStyle()
+        invalid_colors = [
+            'red',      # Not a hex color
+            '000000',   # Missing the leading #
+            '#0',       # length not 3 or 6
+            '#12',      # length not 3 or 6
+            '#1234',    # length not 3 or 6
+            '#12345',   # length not 3 or 6
+            '#1234567', # length not 3 or 6
+            '#axbycz',  # invalid hex characters
+        ]
+        for c in invalid_colors:
+            self.assertRaises(ValueError, setattr, s, 'color', c)
