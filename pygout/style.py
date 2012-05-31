@@ -32,7 +32,7 @@ class _Color(object):
         if len(color) == 3:
             color = color[0] * 2 + color[1] * 2 + color[2] * 2
 
-        setattr(obj, self.attr, color)
+        setattr(obj, self.attr, color.lower())
 
 
 def _switch_if_set(value, if_true, if_false):

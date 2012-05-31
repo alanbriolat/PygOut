@@ -39,6 +39,8 @@ def test_equality():
     s1.apply_pygments_style(s2.to_pygments_style())
     assert s1 == s2 == s3
 
+    assert TokenStyle('#fff') == TokenStyle('#FFFFFF')
+
 
 def test_identity():
     styles = [
@@ -58,6 +60,23 @@ def test_identity():
 
 
 class TestColorAssignment(unittest.TestCase):
+    def test_valid_colors(self):
+        valid_colors = [
+            (None, None),           # empty
+            ('', None),             # empty
+            ('#012', '#001122'),    # 3-digit, converted to 6-digit)
+            ('#012345', '#012345'), # 6-digit, preserved)
+            ('#def', '#ddeeff'),    # hex letters, 3-digit
+            ('#abcdef', '#abcdef'), # hex letters, 6-digit
+            ('#aBCdeF', '#abcdef'), # mixed case -> canonical representation
+            ('#AbC', '#aabbcc'),    # mixed case, 3-digit -> canonical
+        ]
+        for value, postcond in valid_colors:
+            s = TokenStyle("#000000")
+            self.assertNotEqual(s.color, postcond)
+            s.color = value
+            self.assertEqual(s.color, postcond)
+
     def test_invalid_colors(self):
         s = TokenStyle()
         invalid_colors = [
