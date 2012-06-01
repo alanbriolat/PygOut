@@ -37,3 +37,7 @@ def main(argv=sys.argv):
                        help='Use style definition file')
     args = parser.parse_args()
     print args
+
+
+if __name__ == '__main__':
+    main()
