@@ -19,8 +19,8 @@ class Format(object):
         """
         raise NotImplementedError
 
-    def write(self, stream):
-        """Write style to *stream* according to the format.
+    def write(self, style, stream):
+        """Write *style* to *stream* according to the format.
         """
         raise NotImplementedError
 
