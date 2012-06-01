@@ -61,14 +61,14 @@ def test_identity():
 
 def test_valid_color():
     valid_colors = [
-        (None, None),           # empty
-        ('', None),             # empty
-        ('#012', '#001122'),    # 3-digit, converted to 6-digit)
-        ('#012345', '#012345'), # 6-digit, preserved)
-        ('#def', '#ddeeff'),    # hex letters, 3-digit
-        ('#abcdef', '#abcdef'), # hex letters, 6-digit
-        ('#aBCdeF', '#abcdef'), # mixed case -> canonical representation
-        ('#AbC', '#aabbcc'),    # mixed case, 3-digit -> canonical
+        (None, None),               # empty
+        ('', None),                 # empty
+        ('#012', '#001122'),        # 3-digit, converted to 6-digit)
+        ('#012345', '#012345'),     # 6-digit, preserved)
+        ('#def', '#ddeeff'),        # hex letters, 3-digit
+        ('#abcdef', '#abcdef'),     # hex letters, 6-digit
+        ('#aBCdeF', '#abcdef'),     # mixed case -> canonical representation
+        ('#AbC', '#aabbcc'),        # mixed case, 3-digit -> canonical
     ]
 
     def test(value, postcond):
@@ -83,14 +83,14 @@ def test_valid_color():
 
 def test_invalid_color():
     invalid_colors = [
-        'red',      # Not a hex color
-        '000000',   # Missing the leading #
-        '#0',       # length not 3 or 6
-        '#12',      # length not 3 or 6
-        '#1234',    # length not 3 or 6
-        '#12345',   # length not 3 or 6
-        '#1234567', # length not 3 or 6
-        '#axbycz',  # invalid hex characters
+        'red',          # Not a hex color
+        '000000',       # Missing the leading #
+        '#0',           # length not 3 or 6
+        '#12',          # length not 3 or 6
+        '#1234',        # length not 3 or 6
+        '#12345',       # length not 3 or 6
+        '#1234567',     # length not 3 or 6
+        '#axbycz',      # invalid hex characters
     ]
 
     @raises(ValueError)

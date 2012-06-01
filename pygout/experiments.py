@@ -45,12 +45,13 @@ class Vim(Application):
 
     def generate_basic_rule(self, token, groups, style):
         tstyle = get_token_style(style, token)
-        fg = '#'+tstyle['color'] if tstyle['color'] else 'none'
-        bg = '#'+tstyle['bgcolor'] if tstyle['bgcolor'] else 'none'
+        fg = '#' + tstyle['color'] if tstyle['color'] else 'none'
+        bg = '#' + tstyle['bgcolor'] if tstyle['bgcolor'] else 'none'
         gui = 'none'    # TODO: fixme
         for g in groups:
             yield "hi {} guifg={} guibg={} gui={}".format(g, fg, bg, gui)
             # TODO: generate 256-color color codes for cterm*
 
     def generate(self, style):
-        return '\n'.join(itertools.chain(*(f(t, g, style) for (t, g, f) in self.tokens)))
+        return '\n'.join(itertools.chain(*(f(t, g, style)
+                         for (t, g, f) in self.tokens)))
