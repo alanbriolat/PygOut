@@ -159,4 +159,7 @@ class SyntaxStyle(object):
         s.bgcolor = style.background_color
         s.hlcolor = style.highlight_color
         # Convert styles to TokenStyle, omitting empty (inherit-only) styles
-        s.styles = dict((k, TokenStyle(s)) for k, s in style.styles if s)
+        s.styles = dict((k, TokenStyle(s))
+                        for k, s in style.styles.iteritems() if s)
+
+        return s

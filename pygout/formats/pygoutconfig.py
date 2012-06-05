@@ -8,8 +8,7 @@ from pygout.style import TokenStyle, SyntaxStyle
 
 class PygOutConfig(Format):
     def read(self, stream):
-        config = ConfigParser(interpolation=ExtendedInterpolation(),
-                              default_section='IGNORED_DEFAULT')
+        config = self._create_configparser()
         config.read_file(stream)
 
         token_styles = {}
@@ -21,7 +20,24 @@ class PygOutConfig(Format):
             token = string_to_tokentype(name)
             token_styles[token] = _read_style_section(section)
 
-        return token_styles
+        # TODO: handle background, highlight colors
+        # TODO: save palette?
+        # TODO: have a style name?
+        style = SyntaxStyle()
+        style.styles = token_styles
+        return style
+
+    def write(self, style, stream):
+        config = self._create_configparser()
+        for token in sorted(style.styles.keys()):
+            token_name = str(token)
+            config.add_section(token_name)
+            _write_style_section(config[token_name], style.styles[token])
+        config.write(stream, space_around_delimiters=True)
+
+    def _create_configparser(self):
+        return ConfigParser(interpolation=ExtendedInterpolation(),
+                            default_section='IGNORED_DEFAULT')
 
 
 def _read_style_section(section):
@@ -35,6 +51,17 @@ def _read_style_section(section):
     ts.underline = section.getboolean('underline', None)
     ts.inherit = section.getboolean('inherit', True)
     return ts
+
+
+def _write_style_section(section, style):
+    """Modify *section* by adding options that are set in *style*.
+    """
+    for k in ('color', 'bgcolor', 'bold', 'italic', 'underline'):
+        v = getattr(style, k)
+        if v is not None:
+            section[k] = str(v)
+    if style.inherit == False:
+        section['inherit'] = False
 
 
 if __name__ == '__main__':

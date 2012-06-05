@@ -1,15 +1,16 @@
 import sys
 import argparse
 
-import pygments.styles
+from pygments.styles import get_all_styles, get_style_by_name
 
 from pygout.format import find_formats
+from pygout.style import SyntaxStyle
 
 
 FORMATS = find_formats()
 FORMAT_NAMES = sorted(FORMATS.keys())
 
-STYLE_NAMES = sorted(pygments.styles.get_all_styles())
+STYLE_NAMES = sorted(get_all_styles())
 
 
 class _ListStyles(argparse.Action):
@@ -40,7 +41,16 @@ def main(argv=sys.argv):
                        type=argparse.FileType('r'),
                        help='Use style definition file')
     args = parser.parse_args()
-    print args
+
+    if args.pygments_style:
+        pygments_style = get_style_by_name(args.pygments_style)
+        style = SyntaxStyle.from_pygments_style(pygments_style)
+    elif args.style:
+        reader = FORMATS['pygoutconfig']()
+        style = reader.read(args.style)
+
+    writer = FORMATS[args.format]()
+    writer.write(style, sys.stdout)
 
 
 if __name__ == '__main__':
