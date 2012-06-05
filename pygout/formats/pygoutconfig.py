@@ -27,7 +27,7 @@ class PygOutConfig(Format):
         style.styles = token_styles
         return style
 
-    def write(self, style, stream):
+    def write(self, stream, style):
         config = self._create_configparser()
         for token in sorted(style.styles.keys()):
             token_name = str(token)

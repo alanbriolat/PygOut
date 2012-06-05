@@ -27,7 +27,7 @@ class Format(object):
         """
         raise NotImplementedError
 
-    def write(self, style, stream):
+    def write(self, stream, style):
         """Write the :class:`~pygout.style.SyntaxStyle` *style* to *stream*
         according to the format.
         """

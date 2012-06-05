@@ -50,7 +50,7 @@ def main(argv=sys.argv):
         style = reader.read(args.style)
 
     writer = FORMATS[args.format]()
-    writer.write(style, sys.stdout)
+    writer.write(sys.stdout, style)
 
 
 if __name__ == '__main__':
