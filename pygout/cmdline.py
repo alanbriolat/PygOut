@@ -23,7 +23,10 @@ class _ListFormats(argparse.Action):
         parser.exit(0, '\n'.join(FORMAT_NAMES) + '\n')
 
 
-def main(argv=sys.argv):
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
+
     parser = argparse.ArgumentParser(
             description='Generate color schemes in different formats')
     parser.add_argument('--help-style', nargs=0, action=_ListStyles,
