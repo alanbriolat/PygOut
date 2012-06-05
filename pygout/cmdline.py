@@ -6,16 +6,20 @@ import pygments.styles
 from pygout.format import find_formats
 
 
+FORMATS = find_formats()
+FORMAT_NAMES = sorted(FORMATS.keys())
+
+STYLE_NAMES = sorted(pygments.styles.get_all_styles())
+
+
 class _ListStyles(argparse.Action):
     def __call__(self, parser, namespace, values, option_string):
-        styles = sorted(pygments.styles.get_all_styles())
-        parser.exit(0, '\n'.join(styles) + '\n')
+        parser.exit(0, '\n'.join(STYLE_NAMES) + '\n')
 
 
 class _ListFormats(argparse.Action):
     def __call__(self, parser, namespace, values, option_string):
-        formats = sorted(find_formats().keys())
-        parser.exit(0, '\n'.join(formats) + '\n')
+        parser.exit(0, '\n'.join(FORMAT_NAMES) + '\n')
 
 
 def main(argv=sys.argv):
@@ -26,11 +30,11 @@ def main(argv=sys.argv):
     parser.add_argument('--help-format', nargs=0, action=_ListFormats,
                         help='Show available applications and exit')
     parser.add_argument('format', metavar='format',
-                        choices=sorted(find_formats().keys()),
+                        choices=FORMAT_NAMES,
                         help='Target format')
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-S', dest='pygments_style', metavar='STYLE',
-                       choices=sorted(pygments.styles.get_all_styles()),
+                       choices=STYLE_NAMES,
                        help='Use existing Pygments style')
     group.add_argument('-f', dest='style', metavar='FILE',
                        type=argparse.FileType('r'),

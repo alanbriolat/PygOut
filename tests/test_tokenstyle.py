@@ -36,7 +36,7 @@ def test_equality():
     assert s2 == s3
 
     assert s1 != s2
-    s1.apply_pygments_style(s2.to_pygments_style())
+    s1.apply_pygments_style(str(s2))
     assert s1 == s2 == s3
 
     assert TokenStyle('#fff') == TokenStyle('#FFFFFF')
@@ -52,7 +52,7 @@ def test_identity():
 
     def test_style_identity(s):
         s1 = TokenStyle(s)
-        s2 = TokenStyle(s1.to_pygments_style())
+        s2 = TokenStyle(str(s1))
         assert s1 == s2
 
     for s in styles:

@@ -1,5 +1,7 @@
 import re
 
+from pygments.style import Style
+
 
 class _Color(object):
     """A clever descriptor that throws a :exc:`ValueError` if an invalid color
@@ -73,8 +75,7 @@ class TokenStyle(object):
         """Update the style from a Pygments style string.
 
         This is largely based on the implementation of
-        :class:`pygments.style.StyleMeta`.  We aren't as careful here because
-        this func
+        :class:`pygments.style.StyleMeta`.
         """
         for styledef in style.split():
             if styledef == 'noinherit':
@@ -99,7 +100,7 @@ class TokenStyle(object):
             # things for an editor.  We won't be using them, but existing
             # Pygments styles might even though they are undocumented.
 
-    def to_pygments_style(self):
+    def __str__(self):
         """Get the Pygments style string that represents this style.
         """
         parts = [
@@ -113,11 +114,49 @@ class TokenStyle(object):
         return ' '.join(p for p in parts if p is not None)
 
     def __repr__(self):
-        return '{}("{}")'.format(self.__class__.__name__,
-                                 self.to_pygments_style())
+        return '{}("{}")'.format(self.__class__.__name__, str(self))
 
     def __eq__(self, other):
         return all(getattr(self, k) == getattr(other, k) for k in self.FIELDS)
 
     def __ne__(self, other):
         return not self == other
+
+
+class SyntaxStyle(object):
+    """The PygOut representation of a syntax color scheme.
+    """
+    _bgcolor = '#ffffff'
+    #: Default background color
+    bgcolor = _Color('_bgcolor')
+    _hlcolor = '#ffffcc'
+    #: Line highlight color
+    hlcolor = _Color('_hlcolor')
+    #: Dict mapping Pygments tokens to :class:`TokenStyle` instances
+    styles = {}
+
+    def to_pygments_style(self):
+        """Generate a Pygments ``Style`` for this style.
+        """
+        class PygOutStyle(Style):
+            background_color = self.bgcolor
+            highlight_color = self.hlcolor
+            styles = dict((k, str(v)) for k, v in self.styles.iteritems())
+            pygout_style = self
+        return PygOutStyle
+
+    @classmethod
+    def from_pygments_style(self, style):
+        """Get a ``SyntaxStyle`` from a Pygments ``Style``.
+
+        If *style* was previously generated from a ``SyntaxStyle`` then this
+        just returns the original ``SyntaxStyle``.
+        """
+        if hasattr(style, 'pygout_style'):
+            return style.pygout_style
+
+        s = SyntaxStyle()
+        s.bgcolor = style.background_color
+        s.hlcolor = style.highlight_color
+        # Convert styles to TokenStyle, omitting empty (inherit-only) styles
+        s.styles = dict((k, TokenStyle(s)) for k, s in style.styles if s)

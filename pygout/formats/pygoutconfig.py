@@ -3,6 +3,7 @@ from configparser import ConfigParser, ExtendedInterpolation
 from pygments.token import string_to_tokentype
 
 from pygout.format import Format
+from pygout.style import TokenStyle, SyntaxStyle
 
 
 class PygOutConfig(Format):
@@ -23,35 +24,17 @@ class PygOutConfig(Format):
         return token_styles
 
 
-def _option_prefix(section, option, prefix):
-    """Get *option* value with *prefix* prepended, or None if absent.
-    """
-    if option not in section:
-        return None
-    return prefix + section.get(option)
-
-
-def _option_switch(section, option, if_true, if_false):
-    """Select between *if_true* and *if_false* based on boolean *option*,
-    returning None if absent.
-    """
-    if option not in section:
-        return None
-    return if_true if section.getbool(option) else if_false
-
-
 def _read_style_section(section):
     """Convert *section* to a Pygments-compatible style string.
     """
-    styles = [
-        _option_prefix(section, 'color', ''),
-        _option_prefix(section, 'background', 'bg:'),
-        _option_switch(section, 'bold', 'bold', 'nobold'),
-        _option_switch(section, 'italic', 'italic', 'noitalic'),
-        _option_switch(section, 'underline', 'underline', 'nounderline'),
-        _option_switch(section, 'inherit', None, 'noinherit'),
-    ]
-    return ' '.join(s for s in styles if s is not None)
+    ts = TokenStyle()
+    ts.color = section.get('color', None)
+    ts.bgcolor = section.get('bgcolor', None)
+    ts.bold = section.getboolean('bold', None)
+    ts.italic = section.getboolean('italic', None)
+    ts.underline = section.getboolean('underline', None)
+    ts.inherit = section.getboolean('inherit', True)
+    return ts
 
 
 if __name__ == '__main__':
