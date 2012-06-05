@@ -7,21 +7,22 @@ class _Color(object):
     """A clever descriptor that throws a :exc:`ValueError` if an invalid color
     is assigned.
     """
+    #: Regex to match only valid 3- and 6-digit hex colors
     VALID_COLOR = re.compile(r'^#(([0-9a-fA-F]{3}){1,2})$')
 
     def __init__(self, attr):
         self.attr = attr
 
-    def __get__(self, obj, objtype):
-        color = getattr(obj, self.attr)
-        if color is not None:
-            color = '#' + color
-        return color
+    def __get__(self, instance, owner):
+        if instance is None:
+            return getattr(owner, self.attr)
+        else:
+            return getattr(instance, self.attr)
 
-    def __set__(self, obj, value):
+    def __set__(self, instance, value):
         # empty/false-like value unsets the color
         if not value:
-            setattr(obj, self.attr, None)
+            setattr(instance, self.attr, None)
             return
 
         # was the color in a valid format?
@@ -34,7 +35,7 @@ class _Color(object):
         if len(color) == 3:
             color = color[0] * 2 + color[1] * 2 + color[2] * 2
 
-        setattr(obj, self.attr, color.lower())
+        setattr(instance, self.attr, '#' + color.lower())
 
 
 def _switch_if_set(value, if_true, if_false):
