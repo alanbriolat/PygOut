@@ -1,6 +1,9 @@
 from nose.tools import raises, eq_
+from pygments.styles import STYLE_MAP, get_style_by_name
+from pygments.token import STANDARD_TYPES
 
-from pygout.style import TokenStyleEditor
+from pygout.style import TokenStyleEditor, create_style
+from pygout.style import create_style_from_pygments
 
 
 # Test each individual token style component
@@ -140,3 +143,39 @@ def test_invalid_color():
 
     for value in invalid_colors:
         yield test, value
+
+
+# Test that the conversion from Pygments style to PygOut style is lossless
+#
+# TODO: Actually enable the tests... currently they fail for 2 reasons:
+#       1) Pygments bug in expanding 3-digit colors
+#       2) Pygments not enforcing uppercase/lowercase
+#
+# See: https://bitbucket.org/birkenfeld/pygments-main/changeset/c61a98b9e109
+def test_style_from_pygments():
+    styles = sorted(STYLE_MAP.keys())
+
+    def compare_style_lists(style, l1, l2):
+        d1 = dict(l1)
+        d2 = dict(l2)
+        keys = sorted(list(set(*[d1.keys() + d2.keys()])))
+
+        for k in keys:
+            assert d1[k] == d2[k], '{} != {} (style: {}, token: {})'.format(
+                    d1[k], d2[k], style, k)
+
+    def test(style):
+        pygments_style = get_style_by_name(style)
+        pygout_style = create_style_from_pygments(style)
+        # Check that all token styles are the same - at this point they haven't
+        # been via TokenStyleEditor.
+        compare_style_lists(style, pygments_style.list_styles(),
+                            pygout_style.list_styles())
+        new_pygout_style = create_style(None, pygout_style.pygout_styles)
+        # Check that a style that's gone via the TokenStyleEditor conversion
+        # still is the same style.
+        compare_style_lists(style, pygout_style.list_styles(),
+                            new_pygout_style.list_styles())
+
+    #for s in styles:
+    #    yield test, s
