@@ -4,7 +4,7 @@ import argparse
 from pygments.styles import get_all_styles, get_style_by_name
 
 from pygout.format import find_formats
-from pygout.style import SyntaxStyle
+from pygout.style import create_style_from_pygments
 
 
 FORMATS = find_formats()
@@ -46,8 +46,7 @@ def main(argv=None):
     args = parser.parse_args()
 
     if args.pygments_style:
-        pygments_style = get_style_by_name(args.pygments_style)
-        style = SyntaxStyle.from_pygments_style(pygments_style)
+        style = create_style_from_pygments(args.pygments_style)
     elif args.style:
         reader = FORMATS['pygoutconfig']()
         style = reader.read(args.style)

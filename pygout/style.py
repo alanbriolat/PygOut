@@ -1,6 +1,8 @@
 import re
 
-from pygments.style import Style
+import pygments.style
+from pygments.token import Token
+from pygments.styles import get_style_by_name
 
 from pygout.util import normalise_color, ValueFilter
 
@@ -134,41 +136,70 @@ class TokenStyleEditor(object):
             return prefix + value
 
 
-class SyntaxStyle(object):
-    """The PygOut representation of a syntax color scheme.
+class StyleMeta(pygments.style.StyleMeta):
+    """Extend the Pygments style metaclass to provide extra functionality.
     """
-    #: Default background color
-    bgcolor = _color_value('_bgcolor', '#ffffff')
-    #: Line highlight color
-    hlcolor = _color_value('_hlcolor', '#ffffcc')
-    #: Dict mapping Pygments tokens to :class:`TokenStyle` instances
-    styles = {}
-
-    def to_pygments_style(self):
-        """Generate a Pygments ``Style`` for this style.
+    def find_style_for_token(cls, token):
+        """Like Pygments' :meth:`StyleMeta.style_for_token`, but searches up
+        the hierarchy if *token* doesn't have a style, defaulting to the base
+        :const:`~pygments.token.Token`.
         """
-        class PygOutStyle(Style):
-            background_color = self.bgcolor
-            highlight_color = self.hlcolor
-            styles = dict((k, str(v)) for k, v in self.styles.iteritems())
-            pygout_style = self
-        return PygOutStyle
+        hierarchy = reversed(token.split())
+        for t in hierarchy:
+            if cls.styles_token(t):
+                return cls.style_for_token(t)
+        # Fallback: use Token style
+        return cls.style_for_token(Token)
 
-    @classmethod
-    def from_pygments_style(self, style):
-        """Get a ``SyntaxStyle`` from a Pygments ``Style``.
 
-        If *style* was previously generated from a ``SyntaxStyle`` then this
-        just returns the original ``SyntaxStyle``.
-        """
-        if hasattr(style, 'pygout_style'):
-            return style.pygout_style
+class Style(pygments.style.Style):
+    """A replacement for Pygments' :class:`~pygments.style.Style` class which
+    uses PygOut's :class:`StyleMeta`.
 
-        s = SyntaxStyle()
-        s.bgcolor = style.background_color
-        s.hlcolor = style.highlight_color
-        # Convert styles to TokenStyle, omitting empty (inherit-only) styles
-        s.styles = dict((k, TokenStyleEditor(s))
-                        for k, s in style.styles.iteritems() if s)
+    (Not sure if this needs to exist or not.)
+    """
+    __metaclass__ = StyleMeta
 
-        return s
+
+def create_style(name, styles, bgcolor=None, hlcolor=None):
+    """Create a :class:`Style` from a map of :class:`Token` to
+    :class:`TokenStyleEditor`.
+
+    The resulting :class:`Style` will have *pygout_name* and *pygout_styles*
+    attributes corresponding to the *name* and *styles* arguments.
+    """
+    bgcolor = normalise_color(bgcolor)
+    hlcolor = normalise_color(hlcolor)
+
+    attrs = {
+        'background_color': bgcolor or Style.background_color,
+        'highlight_color': hlcolor or Style.highlight_color,
+        'styles': dict((k, str(v)) for k, v in styles.iteritems()),
+        'pygout_name': name,
+        'pygout_styles': styles,
+    }
+
+    return StyleMeta('PygOutGeneratedStyle', (Style,), attrs)
+
+
+def create_style_from_pygments(name):
+    """Create a :class:`Style` from a named Pygments style.
+
+    The resulting :class:`Style` will have a *pygout_name* attribute with the
+    value of *name*, and a *pygout_styles* attribute which contains all of the
+    Pygments style's non-empty token styles converted to
+    :class:`TokenStyleEditor` instances.
+    """
+    pygments_style = get_style_by_name(name)
+
+    attrs = {
+        'background_color': pygments_style.background_color,
+        'highlight_color': pygments_style.highlight_color,
+        'styles': pygments_style.styles,
+        'pygout_name': name,
+        'pygout_styles':
+            dict((k, TokenStyleEditor(v))
+                 for k, v in pygments_style.styles.iteritems() if v),
+    }
+
+    return StyleMeta(pygments_style.__name__, (Style,), attrs)

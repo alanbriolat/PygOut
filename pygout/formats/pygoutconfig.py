@@ -3,7 +3,7 @@ from configparser import ConfigParser, ExtendedInterpolation
 from pygments.token import string_to_tokentype
 
 from pygout.format import Format
-from pygout.style import TokenStyleEditor, SyntaxStyle
+from pygout.style import TokenStyleEditor, create_style
 
 
 class PygOutConfig(Format):
@@ -23,16 +23,15 @@ class PygOutConfig(Format):
         # TODO: handle background, highlight colors
         # TODO: save palette?
         # TODO: have a style name?
-        style = SyntaxStyle()
-        style.styles = token_styles
-        return style
+        return create_style(None, token_styles)
 
     def write(self, stream, style):
+        styles = style.pygout_styles
         config = self._create_configparser()
-        for token in sorted(style.styles.keys()):
+        for token in sorted(styles.keys()):
             token_name = str(token)
             config.add_section(token_name)
-            _write_style_section(config[token_name], style.styles[token])
+            _write_style_section(config[token_name], styles[token])
         config.write(stream, space_around_delimiters=True)
 
     def _create_configparser(self):
@@ -63,12 +62,3 @@ def _write_style_section(section, style):
             section[k] = str(v)
     if style.inherit is False:
         section['inherit'] = False
-
-
-if __name__ == '__main__':
-    import sys
-    import codecs
-    with codecs.open(sys.argv[1], 'r', 'utf-8') as stream:
-        f = PygOutConfig()
-        style = f.read(stream)
-        print style
