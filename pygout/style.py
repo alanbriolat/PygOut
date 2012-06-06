@@ -87,6 +87,8 @@ class TokenStyleEditor(object):
                 pass
             elif styledef == 'mono':
                 pass
+            else:
+                raise ValueError("unrecognised style '{}'".format(styledef))
 
     def __str__(self):
         """Assemble a Pygments style string.

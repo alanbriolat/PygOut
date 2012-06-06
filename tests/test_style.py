@@ -31,6 +31,33 @@ def test_tokenstyle_component():
         yield (test,) + t
 
 
+# Test that invalid components raise an error
+@raises(ValueError)
+def test_tokenstyle_invalid_component():
+    s = TokenStyleEditor("not:valid")
+
+
+# Test some TokenStyleEditor edits that should raise errors
+def test_tokenstyle_invalid_edit():
+    tests = [
+        ('inherit', None),
+        ('bold', 'foo'),
+        ('italic', 'foo'),
+        ('underline', 'foo'),
+        ('color', 'foo'),
+        ('bgcolor', 'foo'),
+        ('border', 'foo'),
+    ]
+
+    @raises(ValueError)
+    def test(attr, value):
+        s = TokenStyleEditor()
+        setattr(s, attr, value)
+
+    for t in tests:
+        yield (test,) + t
+
+
 # Test that token styles are equal when they should be
 def test_tokenstyle_equality():
     s1 = TokenStyleEditor()
@@ -69,6 +96,7 @@ def test_tokenstyle_identity():
 
 
 # Test behaviour of valid colors
+# TODO: move this to test_util.py
 def test_valid_color():
     valid_colors = [
         (None, None),               # empty
@@ -92,6 +120,7 @@ def test_valid_color():
 
 
 # Test rejection of invalid colors
+# TODO: move this to test_util.py
 def test_invalid_color():
     invalid_colors = [
         'red',          # Not a hex color
