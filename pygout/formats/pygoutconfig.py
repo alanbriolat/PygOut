@@ -3,7 +3,7 @@ from configparser import ConfigParser, ExtendedInterpolation
 from pygments.token import string_to_tokentype
 
 from pygout.format import Format
-from pygout.style import TokenStyle, SyntaxStyle
+from pygout.style import TokenStyleEditor, SyntaxStyle
 
 
 class PygOutConfig(Format):
@@ -43,24 +43,25 @@ class PygOutConfig(Format):
 def _read_style_section(section):
     """Convert *section* to a Pygments-compatible style string.
     """
-    ts = TokenStyle()
-    ts.color = section.get('color', None)
-    ts.bgcolor = section.get('bgcolor', None)
+    ts = TokenStyleEditor()
+    ts.inherit = section.getboolean('inherit', True)
     ts.bold = section.getboolean('bold', None)
     ts.italic = section.getboolean('italic', None)
     ts.underline = section.getboolean('underline', None)
-    ts.inherit = section.getboolean('inherit', True)
+    ts.color = section.get('color', None)
+    ts.bgcolor = section.get('bgcolor', None)
+    ts.border = section.get('border', None)
     return ts
 
 
 def _write_style_section(section, style):
     """Modify *section* by adding options that are set in *style*.
     """
-    for k in ('color', 'bgcolor', 'bold', 'italic', 'underline'):
+    for k in ('bold', 'italic', 'underline', 'color', 'bgcolor', 'border'):
         v = getattr(style, k)
         if v is not None:
             section[k] = str(v)
-    if style.inherit == False:
+    if style.inherit is False:
         section['inherit'] = False
 
 

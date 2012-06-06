@@ -1,48 +1,57 @@
 from nose.tools import raises, eq_
 
-from pygout.style import TokenStyle
+from pygout.style import TokenStyleEditor
 
 
-def test_components():
-    def test_component(c, attr, before, after):
-        s = TokenStyle()
-        assert getattr(s, attr) == before
-        s.apply_pygments_style(c)
-        assert getattr(s, attr) == after
-
+# Test each individual token style component
+def test_tokenstyle_component():
     tests = [
         ('noinherit', 'inherit', True, False),
-        ('#123456', 'color', None, '#123456'),
-        ('#123', 'color', None, '#112233'),
-        ('bg:#123456', 'bgcolor', None, '#123456'),
-        ('bg:#123', 'bgcolor', None, '#112233'),
         ('bold', 'bold', None, True),
         ('nobold', 'bold', None, False),
         ('italic', 'italic', None, True),
         ('noitalic', 'italic', None, False),
         ('underline', 'underline', None, True),
         ('nounderline', 'underline', None, False),
+        ('#123456', 'color', None, '#123456'),
+        ('#123', 'color', None, '#112233'),
+        ('bg:#123456', 'bgcolor', None, '#123456'),
+        ('bg:#123', 'bgcolor', None, '#112233'),
+        ('border:#123456', 'border', None, '#123456'),
+        ('border:#123', 'border', None, '#112233'),
     ]
 
+    def test(style, attr, before, after):
+        s = TokenStyleEditor()
+        assert getattr(s, attr) == before
+        s.apply(style)
+        assert getattr(s, attr) == after
+
     for t in tests:
-        yield (test_component,) + t
+        yield (test,) + t
 
 
-def test_equality():
-    s1 = TokenStyle()
+# Test that token styles are equal when they should be
+def test_tokenstyle_equality():
+    s1 = TokenStyleEditor()
+    # Equal to itself
     assert s1 == s1
-    s2 = TokenStyle('#123 bg:#abc noinherit bold italic nounderline')
-    s3 = TokenStyle('#123 bg:#abc noinherit bold italic nounderline')
-    assert s2 == s3
-
+    s2 = TokenStyleEditor()
+    # Equal to another empty style
+    assert s1 == s2
+    s1.apply("bold noitalic #fff bg:#000")
+    # Not equal to different style
     assert s1 != s2
-    s1.apply_pygments_style(str(s2))
-    assert s1 == s2 == s3
+    s2.bold = True
+    s2.italic = False
+    s2.color = '#ffffff'
+    s2.bgcolor = '#000'
+    # The styles should be equal again
+    assert s1 == s2
 
-    assert TokenStyle('#fff') == TokenStyle('#FFFFFF')
 
-
-def test_identity():
+# Test that going to and from TokenStyleEditor leaves the style unchanged
+def test_tokenstyle_identity():
     styles = [
         '',
         'noinherit bg:#abc',
@@ -50,15 +59,16 @@ def test_identity():
         '#123 bg:#abc noinherit nobold underline',
     ]
 
-    def test_style_identity(s):
-        s1 = TokenStyle(s)
-        s2 = TokenStyle(str(s1))
+    def test(s):
+        s1 = TokenStyleEditor(s)
+        s2 = TokenStyleEditor(s1)
         assert s1 == s2
 
     for s in styles:
-        yield test_style_identity, s
+        yield test, s
 
 
+# Test behaviour of valid colors
 def test_valid_color():
     valid_colors = [
         (None, None),               # empty
@@ -72,7 +82,7 @@ def test_valid_color():
     ]
 
     def test(value, postcond):
-        s = TokenStyle("#000000")
+        s = TokenStyleEditor("#000000")
         assert s.color != postcond, 'postcondition true before test'
         s.color = value
         eq_(s.color, postcond)
@@ -81,6 +91,7 @@ def test_valid_color():
         yield test, value, postcond
 
 
+# Test rejection of invalid colors
 def test_invalid_color():
     invalid_colors = [
         'red',          # Not a hex color
@@ -95,7 +106,7 @@ def test_invalid_color():
 
     @raises(ValueError)
     def test(value):
-        s = TokenStyle()
+        s = TokenStyleEditor()
         s.color = value
 
     for value in invalid_colors:

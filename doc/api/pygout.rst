@@ -41,6 +41,14 @@ pygout Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`util` Module
+------------------
+
+.. automodule:: pygout.util
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 
